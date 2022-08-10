@@ -178,7 +178,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					`TwitchPlays - Added ${mSplit[1]} to loaders!`
 				);
 				await promises.writeFile(
-					"./loaders.json",
+					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
@@ -200,7 +200,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
 				);
 				await promises.writeFile(
-					"./loaders.json",
+					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
