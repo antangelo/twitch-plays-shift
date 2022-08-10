@@ -6,10 +6,9 @@ import { exec } from "child_process";
 
 var modList, clientId, clientSecret, channelName, time;
 
-var loaders = [];
-
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
+var loadersJson = JSON.parse(readFileSync("./loaders.json").toString());
 
 function readSettings() {
 	try {
@@ -174,10 +173,15 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 		if (mSplit[0] == "addloader") {
 			if (mSplit[1] != undefined) {
-				loaders.push(mSplit[1]);
+				loadersJson.loaders.push(mSplit[1]);
 				chatClient.say(
 					channelName,
 					`TwitchPlays - Added ${mSplit[1]} to loaders!`
+				);
+				await promises.writeFile(
+					"./loaders.json",
+					JSON.stringify(loadersJson, null, 4),
+					"UTF-8"
 				);
 			} else {
 				chatClient.say(
@@ -189,12 +193,17 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
-			var remWhere = loaders.indexOf(mSplit[1]);
+			var remWhere = loadersJson.loaders.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				loaders.splice(remWhere);
+				loadersJson.loaders.splice(remWhere);
 				chatClient.say(
 					channelName,
 					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
+				);
+				await promises.writeFile(
+					"./loaders.json",
+					JSON.stringify(loadersJson, null, 4),
+					"UTF-8"
 				);
 			} else {
 				chatClient.say(
@@ -229,11 +238,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listloaders":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Loaders: ${loaders.join(", ")}`
+					`TwitchPlays - Loaders: ${loadersJson.loaders.join(", ")}`
 				);
 				return 0;
 			case "clearloaders":
-				loaders = [];
+				loadersJson.loaders = [];
 				chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
 				return 0;
 
@@ -248,7 +257,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 	}
 
-	if (loaders.includes(user)) {
+	if (loadersJson.loaders.includes(user)) {
 		switch (message.toLowerCase()) {
 			case "loadbob":
 				robot.keyTap("f1");
