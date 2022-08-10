@@ -4,23 +4,12 @@ import { ChatClient } from "@twurple/chat";
 import robot from "robotjs";
 import { exec } from "child_process";
 
-var modList, clientId, clientSecret, channelName, loaders, time;
+var modList, clientId, clientSecret, channelName, time;
+
+var loaders = [];
 
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
-const authProvider = new RefreshingAuthProvider(
-	{
-		clientId,
-		clientSecret,
-		onRefresh: async (newTokenData) =>
-			await promises.writeFile(
-				"./tokens.json",
-				JSON.stringify(newTokenData, null, 4),
-				"UTF-8"
-			),
-	},
-	tokenData
-);
 
 function readSettings() {
 	try {
@@ -148,6 +137,20 @@ async function hold(key, time = 2000) {
 }
 
 readSettings();
+
+const authProvider = new RefreshingAuthProvider(
+	{
+		clientId,
+		clientSecret,
+		onRefresh: async (newTokenData) =>
+			await promises.writeFile(
+				"./tokens.json",
+				JSON.stringify(newTokenData, null, 4),
+				"UTF-8"
+			),
+	},
+	tokenData
+);
 
 const chatClient = new ChatClient({
 	authProvider,
