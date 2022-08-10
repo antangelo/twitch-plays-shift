@@ -271,14 +271,6 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 							? move(word3, word4, time)
 							: move(word3, null, time);
 					break;
-				case 'roll':
-					var time;
-					word1 == 'long' ? (time = 3000) : (time = 5000);
-					if (word3 in directions)
-						word4 in directions
-							? roll(word3, word4, time)
-							: roll(word3, null, time);
-					break;
 			}
 		}
 	}
