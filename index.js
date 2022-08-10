@@ -8,7 +8,7 @@ var modList, clientId, clientSecret, channelName, time;
 
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
-var loadersJson = JSON.parse(readFileSync("./loaders.json").toString());
+var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 
 function readSettings() {
 	try {
@@ -173,14 +173,14 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 		if (mSplit[0] == "addloader") {
 			if (mSplit[1] != undefined) {
-				loadersJson.loaders.push(mSplit[1]);
+				permissionsJson.loaders.push(mSplit[1]);
 				chatClient.say(
 					channelName,
 					`TwitchPlays - Added ${mSplit[1]} to loaders!`
 				);
 				await promises.writeFile(
 					"./loaders.json",
-					JSON.stringify(loadersJson, null, 4),
+					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
 			} else {
@@ -193,22 +193,65 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
-			var remWhere = loadersJson.loaders.indexOf(mSplit[1]);
+			var remWhere = permissionsJson.loaders.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				loadersJson.loaders.splice(remWhere);
+				permissionsJson.loaders.splice(remWhere);
 				chatClient.say(
 					channelName,
 					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
 				);
 				await promises.writeFile(
 					"./loaders.json",
-					JSON.stringify(loadersJson, null, 4),
+					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
 			} else {
 				chatClient.say(
 					channelName,
 					`TwitchPlays - Unable to remove ${mSplit[1]} from loaders!`
+				);
+			}
+			return 0;
+		}
+
+		if (mSplit[0] == "addsaver") {
+			if (mSplit[1] != undefined) {
+				permissionsJson.savers.push(mSplit[1]);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Added ${mSplit[1]} to savers!`
+				);
+				await promises.writeFile(
+					"./permissions.json",
+					JSON.stringify(permissionsJson, null, 4),
+					"UTF-8"
+				);
+			} else {
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Unable to add ${mSplit[1]} to savers!`
+				);
+			}
+			return 0;
+		}
+
+		if (mSplit[0] == "removesaver" || mSplit[0] == "delsaver") {
+			var remWhere = permissionsJson.savers.indexOf(mSplit[1]);
+			if (mSplit[1] != undefined && remWhere != -1) {
+				permissionsJson.savers.splice(remWhere);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Removed ${mSplit[1]} from savers!`
+				);
+				await promises.writeFile(
+					"./permissions.json",
+					JSON.stringify(permissionsJson, null, 4),
+					"UTF-8"
+				);
+			} else {
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Unable to remove ${mSplit[1]} from savers!`
 				);
 			}
 			return 0;
@@ -238,11 +281,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listloaders":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Loaders: ${loadersJson.loaders.join(", ")}`
+					`TwitchPlays - Loaders: ${permissionsJson.loaders.join(", ")}`
 				);
 				return 0;
 			case "clearloaders":
-				loadersJson.loaders = [];
+				permissionsJson.loaders = [];
 				chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
 				return 0;
 
@@ -257,13 +300,24 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 	}
 
-	if (loadersJson.loaders.includes(user)) {
+	if (permissionsJson.loaders.includes(user)) {
 		switch (message.toLowerCase()) {
 			case "loadbob":
 				robot.keyTap("f1");
 				return 0;
 			case "loadbob2":
 				robot.keyTap("f2");
+				return 0;
+		}
+	}
+
+	if (permissionsJson.savers.includes(user)) {
+		switch (message.toLowerCase()) {
+			case "savebob":
+				robot.keyTap("f1", "shift");
+				return 0;
+			case "savebob2":
+				robot.keyTap("f2", "shift");
 				return 0;
 		}
 	}
