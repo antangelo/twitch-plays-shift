@@ -4,7 +4,7 @@ import { ChatClient } from '@twurple/chat';
 import robot from 'robotjs';
 import { exec } from 'child_process';
 
-var modList, clientId, clientSecret, channelName;
+var modList, clientId, clientSecret, channelName, time;
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile('./tokens.json', 'UTF-8'));
 const authProvider = new RefreshingAuthProvider(
@@ -249,14 +249,23 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 		// execute action with modifiers jump(dir1, dir2, long, time = 900)
 		if (actionsModifiers.includes(word1)) {
+			switch (word1) {
+				case 'light':
+					time = 300;
+					break;
+				case 'long':
+					time = 1500;
+					break;
+				case 'giga':
+					time = 3000;
+					break;
+			}
 			switch (word2) {
 				case 'turn':
 				case 'look':
 					if (word1 == 'light' && word3 in directions) look(word3, 200);
 					break;
 				case 'jump':
-					var time;
-					word1 == 'long' ? (time = 1500) : (time = 3000);
 					if (word3 in directions)
 						word4 in directions
 							? jump(word3, word4, true, time)
@@ -264,8 +273,6 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					else jump(null, null, true, time);
 					break;
 				case 'move':
-					var time;
-					word1 == 'long' ? (time = 1500) : (time = 3000);
 					if (word3 in directions)
 						word4 in directions
 							? move(word3, word4, time)
