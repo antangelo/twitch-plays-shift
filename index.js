@@ -1,19 +1,18 @@
 import { RefreshingAuthProvider } from '@twurple/auth';
+import { promises, readFileSync } from 'fs';
 import { ChatClient } from '@twurple/chat';
-import { promises as fs } from 'fs';
 import robot from 'robotjs';
 import { exec } from 'child_process';
 
+var modList, clientId, clientSecret, channelName;
 var isActive = 1;
-var clientId, clientSecret, modList, channelName;
-
-const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'UTF-8'));
+const tokenData = JSON.parse(await promises.readFile('./tokens.json', 'UTF-8'));
 const authProvider = new RefreshingAuthProvider(
 	{
 		clientId,
 		clientSecret,
 		onRefresh: async (newTokenData) =>
-			await fs.writeFile(
+			await promises.writeFile(
 				'./tokens.json',
 				JSON.stringify(newTokenData, null, 4),
 				'UTF-8'
@@ -24,7 +23,7 @@ const authProvider = new RefreshingAuthProvider(
 
 function readSettings() {
 	try {
-		jsonFile = fs.readFileSync('./settings.json').toString();
+		var jsonFile = readFileSync('./settings.json').toString();
 	} catch (e) {
 		console.log('Could not load json file!');
 		process.exit();
@@ -35,16 +34,10 @@ function readSettings() {
 		clientSecret = parse['client-secret'];
 		channelName = parse['channel-name'];
 	} catch (e) {
-		console.log(e, jsonFile);
 		console.log('Failed to parse json');
 		process.exit();
 	}
 }
-
-const chatClient = new ChatClient({
-	authProvider,
-	channels: channelName,
-});
 
 const directions = {
 	forward: '8',
@@ -54,6 +47,7 @@ const directions = {
 	left: '4',
 	right: '6',
 };
+
 const keys = ['a', 'b', 'r', 'y', 'x', 'l', 'z'];
 
 const simpleActions = [
@@ -124,6 +118,7 @@ async function look(dir, time = 500) {
 			return 1;
 	}
 }
+
 async function jump(dir1, dir2, long, time = 900) {
 	robot.keyTap('a');
 	if (dir1) robot.keyToggle(directions[dir1], 'down');
@@ -148,6 +143,11 @@ async function hold(key, time = 2000) {
 }
 
 readSettings();
+
+const chatClient = new ChatClient({
+	authProvider,
+	channels: [channelName],
+});
 
 chatClient.connect();
 
