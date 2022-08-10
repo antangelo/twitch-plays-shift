@@ -1,0 +1,17 @@
+{
+  "name": "twitch-plays",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "lobomfz",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@twurple/api": "^5.1.6",
+    "@twurple/auth": "^5.1.6",
+    "@twurple/chat": "^5.1.6",
+    "robotjs": "^0.6.0"
+  }
+}

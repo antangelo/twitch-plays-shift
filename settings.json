@@ -1,0 +1,5 @@
+{
+	"client-id": "TWITCH_APP_CLIENT_ID",
+	"client-secret": "TWITCH_APP_CLIENT_SECRET",
+	"channel-name": "TWITCH_CHAT_CHANNEL_NAME"
+}
