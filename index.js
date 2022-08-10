@@ -169,150 +169,151 @@ chatClient.onMessage(async (channel, user, message, msg) => {
     if (modList.includes(user) || user == channelName) {
         var mSplit = message.toLowerCase().split(" ");
 
-        if (mSplit[0] == "addloader" && mSplit[1] != undefined) {
-            loaders.push(mSplit[1]);
-            chatClient.say(channelName, `TwitchPlays - Added ${mSplit[1]} to loaders!`);
-        } else {
-            chatClient.say(channelName, `TwitchPlays - Unable to add ${mSplit[1]} to loaders!`);
+        if (mSplit[0] == "addloader") {
+            if (mSplit[1] != undefined) {
+                loaders.push(mSplit[1]);
+                chatClient.say(channelName, `TwitchPlays - Added ${mSplit[1]} to loaders!`);
+            } else {
+                chatClient.say(channelName, `TwitchPlays - Unable to add ${mSplit[1]} to loaders!`);
+                return 0;
+            }
         }
-        return 0;
-    }
 
-    if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
-        var remWhere = loaders.indexOf(mSplit[1]);
-        if (mSplit[1] != undefined && remWhere != -1) {
-            loaders.splice(remWhere);
-            chatClient.say(channelName, `TwitchPlays - Removed ${mSplit[1]} from loaders!`);
-        } else {
-            chatClient.say(channelName, `TwitchPlays - Unable to remove ${mSplit[1]} from loaders!`);
+        if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
+            var remWhere = loaders.indexOf(mSplit[1]);
+            if (mSplit[1] != undefined && remWhere != -1) {
+                loaders.splice(remWhere);
+                chatClient.say(channelName, `TwitchPlays - Removed ${mSplit[1]} from loaders!`);
+            } else {
+                chatClient.say(channelName, `TwitchPlays - Unable to remove ${mSplit[1]} from loaders!`);
+            }
+            return 0;
         }
-        return 0;
-    }
 
-    switch (message.toLowerCase()) {
-        case 'stopbob':
-            isActive = 0;
-            robot.keyTap('f10');
-            return 0;
-        case 'startbob':
-            isActive = 1;
-            robot.keyTap('f10');
-            return 0;
-        case 'savebob':
-            robot.keyTap('f1', 'shift');
-            return 0;
-        case 'loadbob':
-            robot.keyTap('f1');
-            return 0;
-        case 'savebob2':
-            robot.keyTap('f2', 'shift');
-            return 0;
-        case 'loadbob2':
-            robot.keyTap('f2');
-            return 0;
-        case 'listloaders':
-            chatClient.say(channelName, `TwitchPlays - Loaders: ${loaders.join(", ")}`);
-            return 0;
-        case 'clearloaders':
-            loaders = [];
-            chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
-            return 0;
+        switch (message.toLowerCase()) {
+            case 'stopbob':
+                isActive = 0;
+                robot.keyTap('f10');
+                return 0;
+            case 'startbob':
+                isActive = 1;
+                robot.keyTap('f10');
+                return 0;
+            case 'savebob':
+                robot.keyTap('f1', 'shift');
+                return 0;
+            case 'loadbob':
+                robot.keyTap('f1');
+                return 0;
+            case 'savebob2':
+                robot.keyTap('f2', 'shift');
+                return 0;
+            case 'loadbob2':
+                robot.keyTap('f2');
+                return 0;
+            case 'listloaders':
+                chatClient.say(channelName, `TwitchPlays - Loaders: ${loaders.join(", ")}`);
+                return 0;
+            case 'clearloaders':
+                loaders = [];
+                chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
+                return 0;
 
-        case 'rebootbob':
-            exec('/home/user/archive/reboot.sh', (error, stdout, stderr) => {
-                console.log(stdout);
-            });
-            await sleep(5000);
-            robot.mouseClick();
-            robot.keyTap('f2');
-            return 0;
-    }
-}
-
-	if (loaders.includes(user)) {
-    switch (message.toLowerCase()) {
-        case 'loadbob':
-            robot.keyTap('f1');
-            return 0;
-        case 'loadbob2':
-            robot.keyTap('f2');
-            return 0;
-    }
-}
-
-if (isActive == 1) {
-    console.log(message);
-    var word1 = message.split(' ')[0]?.toLowerCase() || '';
-    var word2 = message.split(' ')[1]?.toLowerCase() || '';
-    var word3 = message.split(' ')[2]?.toLowerCase() || '';
-    var word4 = message.split(' ')[3]?.toLowerCase() || '';
-
-    // move directly
-    if (word1 in directions) {
-        move(word1, (word2 in directions) ? word2 : null);
-    }
-
-    // press directly
-    if (keys.includes(word1)) {
-        press(word1);
-    }
-
-    // execute simple action
-    if (simpleActions.includes(word1)) {
-        switch (word1) {
-            case 'move':
-                if (word2 in directions)
-                    move(word2, (word3 in directions) ? word3 : null);
-                break;
-            case 'sneak':
-                if (word2 in directions)
-                    sneak(word2, (word3 in directions) ? word3 : null);
-                break;
-            case 'press':
-                if (keys.includes(word2))
-                    press(word2);
-                break;
-            case 'turn':
-            case 'look':
-                if (word2 in directions)
-                    look(word2);
-                break;
-            case 'jump':
-                if (word2 in directions)
-                    jump(word2, (word3 in directions) ? word3 : null);
-                else jump();
-                if (word2 == 'slam')
-                    press('x');
-                break;
-            case 'hold':
-                if (keys.includes(word2))
-                    hold(word2);
-                break;
-            case 'roll':
-                if (word2 in directions)
-                    roll(word2, (word3 in directions) ? word3 : null);
-                break;
+            case 'rebootbob':
+                exec('/home/user/archive/reboot.sh', (error, stdout, stderr) => {
+                    console.log(stdout);
+                });
+                await sleep(5000);
+                robot.mouseClick();
+                robot.keyTap('f2');
+                return 0;
         }
     }
 
-    // execute action with modifiers jump(dir1, dir2, long, time = 900)
-    if (word1 in actionsModifiers) {
-        var dir1, dir2;
-        time = actionsModifiers[word1];
-        dir1 = (word3 in directions) ? word3 : null;
-        dir2 = (word4 in directions) ? word4 : null;
-        switch (word2) {
-            case 'turn':
-            case 'look':
-                if (word1 == 'light' && word3 in directions) look(word3, 200); // hard coded cause why not
-                break;
-            case 'jump':
-                jump(dir1, dir2, true, time);
-                break;
-            case 'move':
-                move(dir1, dir2, true, time);
-                break;
+    if (loaders.includes(user)) {
+        switch (message.toLowerCase()) {
+            case 'loadbob':
+                robot.keyTap('f1');
+                return 0;
+            case 'loadbob2':
+                robot.keyTap('f2');
+                return 0;
         }
     }
-}
+
+    if (isActive == 1) {
+        console.log(message);
+        var word1 = message.split(' ')[0]?.toLowerCase() || '';
+        var word2 = message.split(' ')[1]?.toLowerCase() || '';
+        var word3 = message.split(' ')[2]?.toLowerCase() || '';
+        var word4 = message.split(' ')[3]?.toLowerCase() || '';
+
+        // move directly
+        if (word1 in directions) {
+            move(word1, (word2 in directions) ? word2 : null);
+        }
+
+        // press directly
+        if (keys.includes(word1)) {
+            press(word1);
+        }
+
+        // execute simple action
+        if (simpleActions.includes(word1)) {
+            switch (word1) {
+                case 'move':
+                    if (word2 in directions)
+                        move(word2, (word3 in directions) ? word3 : null);
+                    break;
+                case 'sneak':
+                    if (word2 in directions)
+                        sneak(word2, (word3 in directions) ? word3 : null);
+                    break;
+                case 'press':
+                    if (keys.includes(word2))
+                        press(word2);
+                    break;
+                case 'turn':
+                case 'look':
+                    if (word2 in directions)
+                        look(word2);
+                    break;
+                case 'jump':
+                    if (word2 in directions)
+                        jump(word2, (word3 in directions) ? word3 : null);
+                    else jump();
+                    if (word2 == 'slam')
+                        press('x');
+                    break;
+                case 'hold':
+                    if (keys.includes(word2))
+                        hold(word2);
+                    break;
+                case 'roll':
+                    if (word2 in directions)
+                        roll(word2, (word3 in directions) ? word3 : null);
+                    break;
+            }
+        }
+
+        // execute action with modifiers jump(dir1, dir2, long, time = 900)
+        if (word1 in actionsModifiers) {
+            var dir1, dir2;
+            time = actionsModifiers[word1];
+            dir1 = (word3 in directions) ? word3 : null;
+            dir2 = (word4 in directions) ? word4 : null;
+            switch (word2) {
+                case 'turn':
+                case 'look':
+                    if (word1 == 'light' && word3 in directions) look(word3, 200); // hard coded cause why not
+                    break;
+                case 'jump':
+                    jump(dir1, dir2, true, time);
+                    break;
+                case 'move':
+                    move(dir1, dir2, true, time);
+                    break;
+            }
+        }
+    }
 });
