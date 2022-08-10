@@ -97,7 +97,7 @@ async function sneak(dir1, dir2, time = 600) {
 	return 1;
 }
 
-async function look(dir, time = 500) {
+async function look(dir, time = 600) {
 	switch (dir) {
 		case "left":
 			robot.keyToggle("right", "down");
