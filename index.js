@@ -253,7 +253,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 		// execute action with modifiers jump(dir1, dir2, long, time = 900)
 		if (word1 in actionsModifiers) {
-			time = directions[word1];
+			time = actionsModifiers[word1];
 			switch (word2) {
 				case 'turn':
 				case 'look':
