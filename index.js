@@ -168,14 +168,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (modList.includes(user) || user == channelName) {
 		switch (message.toLowerCase()) {
 			case 'stopbob':
-				robot.keyTap('f1', 'shift');
 				isActive = 0;
 				robot.keyTap('f10');
 				return 0;
 			case 'startbob':
 				isActive = 1;
 				robot.keyTap('f10');
-				robot.keyTap('f1');
 				return 0;
 			case 'savebob':
 				robot.keyTap('f1', 'shift');
@@ -253,24 +251,20 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 		// execute action with modifiers jump(dir1, dir2, long, time = 900)
 		if (word1 in actionsModifiers) {
+			var dir1, dir2;
 			time = actionsModifiers[word1];
+			word3 in directions ? (dir1 = word3) : (dir1 = null);
+			word4 in directions ? (dir2 = word4) : (dir2 = null);
 			switch (word2) {
 				case 'turn':
 				case 'look':
 					if (word1 == 'light' && word3 in directions) look(word3, 200); // hard coded cause why not
 					break;
 				case 'jump':
-					if (word3 in directions)
-						word4 in directions
-							? jump(word3, word4, true, time)
-							: jump(word3, null, true, time);
-					else jump(null, null, true, time);
+					jump(dir1, dir2, true, time);
 					break;
 				case 'move':
-					if (word3 in directions)
-						word4 in directions
-							? move(word3, word4, time)
-							: move(word3, null, time);
+					move(dir1, dir2, true, time);
 					break;
 			}
 		}
