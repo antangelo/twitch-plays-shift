@@ -61,7 +61,11 @@ const simpleActions = [
 	'roll',
 ];
 
-const actionsModifiers = ['long', 'giga', 'light'];
+const actionsModifiers = {
+	light: '300',
+	long: '1500',
+	giga: '3000',
+};
 
 function sleep(ms) {
 	return new Promise((resolve) => {
@@ -248,22 +252,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		// execute action with modifiers jump(dir1, dir2, long, time = 900)
-		if (actionsModifiers.includes(word1)) {
-			switch (word1) {
-				case 'light':
-					time = 300;
-					break;
-				case 'long':
-					time = 1500;
-					break;
-				case 'giga':
-					time = 3000;
-					break;
-			}
+		if (word1 in actionsModifiers) {
+			time = directions[word1];
 			switch (word2) {
 				case 'turn':
 				case 'look':
-					if (word1 == 'light' && word3 in directions) look(word3, 200);
+					if (word1 == 'light' && word3 in directions) look(word3, 200); // hard coded cause why not
 					break;
 				case 'jump':
 					if (word3 in directions)
