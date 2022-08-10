@@ -256,6 +256,49 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			return 0;
 		}
 
+		if (mSplit[0] == "blockinput") {
+			if (mSplit[1] != undefined) {
+				permissionsJson.blocked.push(mSplit[1]);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - ${mSplit[1]} can no longer send inputs to the game!`
+				);
+				await promises.writeFile(
+					"./permissions.json",
+					JSON.stringify(permissionsJson, null, 4),
+					"UTF-8"
+				);
+			} else {
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Unable to block ${mSplit[1]}'s input!`
+				);
+			}
+			return 0;
+		}
+
+		if (mSplit[0] == "unblockinput") {
+			var remWhere = permissionsJson.blocked.indexOf(mSplit[1]);
+			if (mSplit[1] != undefined && remWhere != -1) {
+				permissionsJson.blocked.splice(remWhere);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - ${mSplit[1]} can send inputs to the game again!`
+				);
+				await promises.writeFile(
+					"./permissions.json",
+					JSON.stringify(permissionsJson, null, 4),
+					"UTF-8"
+				);
+			} else {
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Unable to remove ${mSplit[1]} from block list!`
+				);
+			}
+			return 0;
+		}
+
 		switch (message.toLowerCase()) {
 			case "stopbob":
 				isActive = 0;
@@ -295,7 +338,17 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				return 0;
 			case "clearsavers":
 				permissionsJson.savers = [];
-				chatClient.say(channelName, `TwitchPlays - Cleared the Savers list!`);
+				chatClient.say(channelName, `TwitchPlays - Cleared the savers list!`);
+				return 0;
+			case "listblocked":
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Blocked: ${permissionsJson.blocked.join(", ")}`
+				);
+				return 0;
+			case "clearblocked":
+				permissionsJson.blocked = [];
+				chatClient.say(channelName, `TwitchPlays - Cleared the blocked list!`);
 				return 0;
 			case "rebootbob":
 				exec("/home/user/archive/reboot.sh", (error, stdout, stderr) => {
@@ -306,6 +359,10 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				robot.keyTap("f2");
 				return 0;
 		}
+	}
+
+	if (permissionsJson.blocked.includes(user)) {
+		return 0; // You have no power here >:^)
 	}
 
 	if (permissionsJson.loaders.includes(user)) {
