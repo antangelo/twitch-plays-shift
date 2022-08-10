@@ -288,6 +288,16 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				permissionsJson.loaders = [];
 				chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
 				return 0;
+			case "listsavers":
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Savers: ${permissionsJson.savers.join(", ")}`
+				);
+				return 0;
+			case "clearsavers":
+				permissionsJson.savers = [];
+				chatClient.say(channelName, `TwitchPlays - Cleared the Savers list!`);
+				return 0;
 
 			case "rebootbob":
 				exec("/home/user/archive/reboot.sh", (error, stdout, stderr) => {
