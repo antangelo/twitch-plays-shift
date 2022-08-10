@@ -174,9 +174,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
                 loaders.push(mSplit[1]);
                 chatClient.say(channelName, `TwitchPlays - Added ${mSplit[1]} to loaders!`);
             } else {
-                chatClient.say(channelName, `TwitchPlays - Unable to add ${mSplit[1]} to loaders!`);
-                return 0;
+                chatClient.say(channelName, `TwitchPlays - Unable to add ${mSplit[1]} to loaders!`);   
             }
+            return 0;
         }
 
         if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
