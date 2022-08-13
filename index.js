@@ -129,6 +129,7 @@ async function press(key) {
 }
 
 async function hold(key, time = 2000) {
+	if (key in directions) key = directions[key];
 	robot.keyToggle(key, "down");
 	await sleep(time);
 	robot.keyToggle(key, "up");
