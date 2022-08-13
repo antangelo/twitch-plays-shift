@@ -10,6 +10,9 @@ var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
 var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 
+// https://discuss.dev.twitch.tv/t/twitch-channel-name-regex/3855/4
+const usernameRegex = RegExp("^(#)?[a-zA-Z0-9][\\w]{2,24}$");
+
 function readSettings() {
 	try {
 		var jsonFile = readFileSync("./settings.json").toString();
@@ -170,17 +173,18 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	robot.mouseClick();
 	var mSplit = message.toLowerCase().split(" ");
 	if (modList.includes(user) || user == channelName) {
+		
 		if (mSplit[0] == "addloader") {
-			if (mSplit[1] != undefined) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
 				permissionsJson.loaders.push(mSplit[1]);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Added ${mSplit[1]} to loaders!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Added ${mSplit[1]} to loaders!`
 				);
 			} else {
 				chatClient.say(
@@ -195,14 +199,14 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			var remWhere = permissionsJson.loaders.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
 				permissionsJson.loaders.splice(remWhere);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
 				);
 			} else {
 				chatClient.say(
@@ -214,16 +218,16 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "addsaver") {
-			if (mSplit[1] != undefined) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
 				permissionsJson.savers.push(mSplit[1]);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Added ${mSplit[1]} to savers!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Added ${mSplit[1]} to savers!`
 				);
 			} else {
 				chatClient.say(
@@ -238,14 +242,14 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			var remWhere = permissionsJson.savers.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
 				permissionsJson.savers.splice(remWhere);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Removed ${mSplit[1]} from savers!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - Removed ${mSplit[1]} from savers!`
 				);
 			} else {
 				chatClient.say(
@@ -256,17 +260,17 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			return 0;
 		}
 
-		if (mSplit[0] == "blockinput") {
-			if (mSplit[1] != undefined) {
+		if (mSplit[0] == "blockinput" || mSplit[0] == "blockbob" || mSplit[0] == "addblocked") {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
 				permissionsJson.blocked.push(mSplit[1]);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - ${mSplit[1]} can no longer send inputs to the game!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - ${mSplit[1]} can no longer send inputs to the game!`
 				);
 			} else {
 				chatClient.say(
@@ -277,18 +281,18 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			return 0;
 		}
 
-		if (mSplit[0] == "unblockinput") {
+		if (mSplit[0] == "unblockinput" || mSplit[0] == "unblockbob" || mSplit[0] == "removeblocked" || mSplit[0] == "delblocked") {
 			var remWhere = permissionsJson.blocked.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
 				permissionsJson.blocked.splice(remWhere);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - ${mSplit[1]} can send inputs to the game again!`
-				);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
+				);
+				chatClient.say(
+					channelName,
+					`TwitchPlays - ${mSplit[1]} can send inputs to the game again!`
 				);
 			} else {
 				chatClient.say(
@@ -323,7 +327,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listloaders":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Loaders: ${permissionsJson.loaders.join(", ")}`
+					`TwitchPlays - Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
 				);
 				return 0;
 			case "clearloaders":
@@ -333,7 +337,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listsavers":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Savers: ${permissionsJson.savers.join(", ")}`
+					`TwitchPlays - Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
 				);
 				return 0;
 			case "clearsavers":
@@ -343,7 +347,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listblocked":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Blocked: ${permissionsJson.blocked.join(", ")}`
+					`TwitchPlays - Blocked: ${permissionsJson.blocked.join(", ") || "(None)"}`
 				);
 				return 0;
 			case "clearblocked":
