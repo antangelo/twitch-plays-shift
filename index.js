@@ -129,7 +129,6 @@ async function press(key) {
 }
 
 async function hold(key, time = 2000) {
-	console.log("holding " + key);
 	robot.keyToggle(key, "down");
 	await sleep(time);
 	robot.keyToggle(key, "up");
@@ -425,7 +424,8 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					if (mSplit[1] == "slam") press("x");
 					break;
 				case "hold":
-					if (keys.includes(mSplit[1])) hold(mSplit[1]);
+					if (keys.includes(mSplit[1]) || mSplit[1] in directions)
+						hold(mSplit[1]);
 					break;
 				case "roll":
 					if (mSplit[1] in directions)
