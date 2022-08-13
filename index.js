@@ -451,7 +451,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					jump(dir1, dir2, true, time);
 					break;
 				case "move":
-					move(dir1, dir2, true, time);
+					move(dir1, dir2, time);
 					break;
 			}
 		}
