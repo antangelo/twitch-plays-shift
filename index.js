@@ -51,9 +51,9 @@ const simpleActions = [
 ];
 
 const actionsModifiers = {
-	light: "300",
-	long: "1500",
-	giga: "3000",
+	light: 300,
+	long: 1500,
+	giga: 3000,
 };
 
 function sleep(ms) {
@@ -452,6 +452,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					break;
 				case "move":
 					move(dir1, dir2, time);
+					break;
+				case "hold":
+					if (keys.includes(mSplit[2]) || mSplit[2] in directions) {
+						console.log("holding", mSplit[2], "for seconds ", time + 500);
+						hold(mSplit[2], time + 500);
+					}
 					break;
 			}
 		}
