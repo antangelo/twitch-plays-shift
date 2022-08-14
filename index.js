@@ -175,7 +175,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (modList.includes(user) || user == channelName) {
 		
 		if (mSplit[0] == "addloader") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && !(permissionsJson.loaders.includes(mSplit[1]))) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.loaders.includes(mSplit[1]))) {
 				permissionsJson.loaders.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
