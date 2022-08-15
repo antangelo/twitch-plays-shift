@@ -175,7 +175,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (modList.includes(user) || user == channelName) {
 		
 		if (mSplit[0] == "addloader") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.loaders.includes(mSplit[1]))) {
 				permissionsJson.loaders.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -198,7 +198,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
 			var remWhere = permissionsJson.loaders.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.loaders.splice(remWhere);
+				permissionsJson.loaders.splice(remWhere,1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -218,7 +218,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "addsaver") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.savers.includes(mSplit[1]))) {
 				permissionsJson.savers.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -241,7 +241,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		if (mSplit[0] == "removesaver" || mSplit[0] == "delsaver") {
 			var remWhere = permissionsJson.savers.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.savers.splice(remWhere);
+				permissionsJson.savers.splice(remWhere,1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -261,7 +261,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "blockinput" || mSplit[0] == "blockbob" || mSplit[0] == "addblocked") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex)) {
+			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.blocked.includes(mSplit[1]))) {
 				permissionsJson.blocked.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -284,7 +284,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		if (mSplit[0] == "unblockinput" || mSplit[0] == "unblockbob" || mSplit[0] == "removeblocked" || mSplit[0] == "delblocked") {
 			var remWhere = permissionsJson.blocked.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.blocked.splice(remWhere);
+				permissionsJson.blocked.splice(remWhere,1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
