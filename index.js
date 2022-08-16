@@ -4,7 +4,8 @@ import { ChatClient } from "@twurple/chat";
 import robot from "robotjs";
 import { exec } from "child_process";
 
-var modList, clientId, clientSecret, channelName, time, toggledKeys;
+var modList, clientId, clientSecret, channelName, time;
+var toggledKeys = [];
 
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
@@ -71,11 +72,12 @@ function updateMods() {
 	});
 }
 
-function releaseToggledKey(keyName){ // If for some reason the key is already in toggledKeys (held down), let go and remove.
-	if (keys.includes(keyName)){
-		if (toggledKeys.includes(keyName)){
-			robot.keyToggle(keyName,"up");
-			toggledKeys.splice(toggledKeys.indexOf(keyName),1);
+function releaseToggledKey(keyName) {
+	// If for some reason the key is already in toggledKeys (held down), let go and remove.
+	if (keys.includes(keyName)) {
+		if (toggledKeys.includes(keyName)) {
+			robot.keyToggle(keyName, "up");
+			toggledKeys.splice(toggledKeys.indexOf(keyName), 1);
 		}
 	}
 }
@@ -138,7 +140,7 @@ async function jump(dir1, dir2, long, time = 900) {
 }
 
 async function press(key) {
-	if (key){
+	if (key) {
 		releaseToggledKey(key);
 		robot.keyTap(key);
 	}
@@ -188,9 +190,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	robot.mouseClick();
 	var mSplit = message.toLowerCase().split(" ");
 	if (modList.includes(user) || user == channelName) {
-		
 		if (mSplit[0] == "addloader") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.loaders.includes(mSplit[1]))) {
+			if (
+				mSplit[1] != undefined &&
+				mSplit[1].match(usernameRegex) &&
+				!permissionsJson.loaders.includes(mSplit[1])
+			) {
 				permissionsJson.loaders.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -213,7 +218,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		if (mSplit[0] == "removeloader" || mSplit[0] == "delloader") {
 			var remWhere = permissionsJson.loaders.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.loaders.splice(remWhere,1);
+				permissionsJson.loaders.splice(remWhere, 1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -233,7 +238,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 
 		if (mSplit[0] == "addsaver") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.savers.includes(mSplit[1]))) {
+			if (
+				mSplit[1] != undefined &&
+				mSplit[1].match(usernameRegex) &&
+				!permissionsJson.savers.includes(mSplit[1])
+			) {
 				permissionsJson.savers.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -256,7 +265,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		if (mSplit[0] == "removesaver" || mSplit[0] == "delsaver") {
 			var remWhere = permissionsJson.savers.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.savers.splice(remWhere,1);
+				permissionsJson.savers.splice(remWhere, 1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -275,8 +284,16 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			return 0;
 		}
 
-		if (mSplit[0] == "blockinput" || mSplit[0] == "blockbob" || mSplit[0] == "addblocked") {
-			if (mSplit[1] != undefined && mSplit[1].match(usernameRegex) && (!permissionsJson.blocked.includes(mSplit[1]))) {
+		if (
+			mSplit[0] == "blockinput" ||
+			mSplit[0] == "blockbob" ||
+			mSplit[0] == "addblocked"
+		) {
+			if (
+				mSplit[1] != undefined &&
+				mSplit[1].match(usernameRegex) &&
+				!permissionsJson.blocked.includes(mSplit[1])
+			) {
 				permissionsJson.blocked.push(mSplit[1]);
 				await promises.writeFile(
 					"./permissions.json",
@@ -296,10 +313,15 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			return 0;
 		}
 
-		if (mSplit[0] == "unblockinput" || mSplit[0] == "unblockbob" || mSplit[0] == "removeblocked" || mSplit[0] == "delblocked") {
+		if (
+			mSplit[0] == "unblockinput" ||
+			mSplit[0] == "unblockbob" ||
+			mSplit[0] == "removeblocked" ||
+			mSplit[0] == "delblocked"
+		) {
 			var remWhere = permissionsJson.blocked.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
-				permissionsJson.blocked.splice(remWhere,1);
+				permissionsJson.blocked.splice(remWhere, 1);
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -342,7 +364,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listloaders":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
+					`TwitchPlays - Loaders: ${
+						permissionsJson.loaders.join(", ") || "(None)"
+					}`
 				);
 				return 0;
 			case "clearloaders":
@@ -352,7 +376,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listsavers":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
+					`TwitchPlays - Savers: ${
+						permissionsJson.savers.join(", ") || "(None)"
+					}`
 				);
 				return 0;
 			case "clearsavers":
@@ -362,7 +388,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			case "listblocked":
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Blocked: ${permissionsJson.blocked.join(", ") || "(None)"}`
+					`TwitchPlays - Blocked: ${
+						permissionsJson.blocked.join(", ") || "(None)"
+					}`
 				);
 				return 0;
 			case "clearblocked":
@@ -409,12 +437,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (isActive == 1) {
 		console.log(message);
 
-		if (mSplit[0] == "toggle" && keys.includes(mSplit[1])){
-			if (toggledKeys.includes(mSplit[1])){
-				robot.keyToggle(mSplit[1],"up");
-				toggledKeys.splice(toggledKeys.indexOf(mSplit[1]),1);
-			} else{
-				robot.keyToggle(mSplit[1],"down");
+		if (mSplit[0] == "toggle" && keys.includes(mSplit[1])) {
+			if (toggledKeys.includes(mSplit[1])) {
+				robot.keyToggle(mSplit[1], "up");
+				toggledKeys.splice(toggledKeys.indexOf(mSplit[1]), 1);
+			} else {
+				robot.keyToggle(mSplit[1], "down");
 				toggledKeys.push(mSplit[1]);
 			}
 			return 0;
