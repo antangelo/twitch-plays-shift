@@ -51,6 +51,7 @@ const simpleActions = [
 	"turn",
 	"jump",
 	"roll",
+	"keepdown",
 ];
 
 const actionsModifiers = {
@@ -422,11 +423,6 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (isActive == 1) {
 		console.log(message);
 
-		if (mSplit[0] == "keepdown" && keys.includes(mSplit[1])) {
-			robot.keyToggle(mSplit[1], "down");
-			return 0;
-		}
-
 		// move directly
 		if (mSplit[0] in directions) {
 			move(mSplit[0], mSplit[1] in directions ? mSplit[1] : null);
@@ -467,6 +463,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				case "roll":
 					if (mSplit[1] in directions)
 						roll(mSplit[1], mSplit[2] in directions ? mSplit[2] : null);
+					break;
+				case "keepdown":
+					if (mSplit[1] in directions) robot.keyToggle(mSplit[1], "down");
 					break;
 			}
 		}
