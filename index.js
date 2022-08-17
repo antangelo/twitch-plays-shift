@@ -5,7 +5,6 @@ import robot from "robotjs";
 import { exec } from "child_process";
 
 var modList, clientId, clientSecret, channelName, time;
-var toggledKeys = [];
 
 var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
@@ -52,7 +51,6 @@ const simpleActions = [
 	"turn",
 	"jump",
 	"roll",
-	"keepdown",
 ];
 
 const actionsModifiers = {
@@ -73,16 +71,6 @@ function updateMods() {
 	});
 }
 
-function releaseToggledKey(keyName) {
-	// If for some reason the key is already in toggledKeys (held down), let go and remove.
-	if (keys.includes(keyName)) {
-		if (toggledKeys.includes(keyName)) {
-			robot.keyToggle(keyName, "up");
-			toggledKeys.splice(toggledKeys.indexOf(keyName), 1);
-		}
-	}
-}
-
 async function move(dir1, dir2, time = 600) {
 	if (dir1) robot.keyToggle(directions[dir1], "down");
 	if (dir2) robot.keyToggle(directions[dir2], "down");
@@ -95,7 +83,6 @@ async function move(dir1, dir2, time = 600) {
 async function roll(dir1, dir2, time = 2000) {
 	if (dir1) robot.keyToggle(directions[dir1], "down");
 	if (dir2) robot.keyToggle(directions[dir2], "down");
-	releaseToggledKey("r");
 	robot.keyToggle("r", "down");
 	await sleep(time);
 	if (dir1) robot.keyToggle(directions[dir1], "up");
@@ -129,7 +116,6 @@ async function look(dir, time = 600) {
 }
 
 async function jump(dir1, dir2, long, time = 900) {
-	releaseToggledKey("a");
 	robot.keyTap("a");
 	if (dir1) robot.keyToggle(directions[dir1], "down");
 	if (dir2) robot.keyToggle(directions[dir2], "down");
@@ -142,7 +128,6 @@ async function jump(dir1, dir2, long, time = 900) {
 
 async function press(key) {
 	if (key) {
-		releaseToggledKey(key);
 		robot.keyTap(key);
 	}
 	return 1;
@@ -150,7 +135,6 @@ async function press(key) {
 
 async function hold(key, time = 2000) {
 	if (key in directions) key = directions[key];
-	releaseToggledKey(key);
 	robot.keyToggle(key, "down");
 	await sleep(time);
 	robot.keyToggle(key, "up");
@@ -438,20 +422,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (isActive == 1) {
 		console.log(message);
 
-<<<<<<< HEAD
-=======
-		if (mSplit[0] == "toggle" && keys.includes(mSplit[1])) {
-			if (toggledKeys.includes(mSplit[1])) {
-				robot.keyToggle(mSplit[1], "up");
-				toggledKeys.splice(toggledKeys.indexOf(mSplit[1]), 1);
-			} else {
-				robot.keyToggle(mSplit[1], "down");
-				toggledKeys.push(mSplit[1]);
-			}
+		if (mSplit[0] == "keepdown" && keys.includes(mSplit[1])) {
+			robot.keyToggle(mSplit[1], "down");
 			return 0;
 		}
 
->>>>>>> 4ba6e8eeee3ea2b165a1e9d755a7823192c44aea
 		// move directly
 		if (mSplit[0] in directions) {
 			move(mSplit[0], mSplit[1] in directions ? mSplit[1] : null);
@@ -492,9 +467,6 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				case "roll":
 					if (mSplit[1] in directions)
 						roll(mSplit[1], mSplit[2] in directions ? mSplit[2] : null);
-					break;
-				case "keepdown":
-					if (mSplit[1] in directions) robot.keyToggle(mSplit[1], "down");
 					break;
 			}
 		}
