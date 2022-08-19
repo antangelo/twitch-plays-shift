@@ -1,6 +1,7 @@
 tokens.json
 settings.json
 package-lock.json
+permissions.json
 
 # Logs
 logs

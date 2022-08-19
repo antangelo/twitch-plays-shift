@@ -51,6 +51,7 @@ const simpleActions = [
 	"turn",
 	"jump",
 	"roll",
+	"keepdown",
 ];
 
 const actionsModifiers = {
@@ -92,11 +93,11 @@ async function roll(dir1, dir2, time = 2000) {
 }
 
 async function sneak(dir1, dir2, time = 600) {
-	if (dir1) robot.keyToggle(directions[dir1], "down", "shift");
-	if (dir2) robot.keyToggle(directions[dir2], "down", "shift");
+	if (dir1) robot.keyToggle(directions[dir1], "down", "control");
+	if (dir2) robot.keyToggle(directions[dir2], "down", "control");
 	await sleep(time);
-	if (dir1) robot.keyToggle(directions[dir1], "up", "shift");
-	if (dir2) robot.keyToggle(directions[dir2], "up", "shift");
+	if (dir1) robot.keyToggle(directions[dir1], "up", "control");
+	if (dir2) robot.keyToggle(directions[dir2], "up", "control");
 	return 1;
 }
 
@@ -422,11 +423,6 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 	if (isActive == 1) {
 		console.log(message);
 
-		if (mSplit[0] == "keepdown" && keys.includes(mSplit[1])) {
-			robot.keyToggle(mSplit[1], "down");
-			return 0;
-		}
-
 		// move directly
 		if (mSplit[0] in directions) {
 			move(mSplit[0], mSplit[1] in directions ? mSplit[1] : null);
@@ -467,6 +463,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				case "roll":
 					if (mSplit[1] in directions)
 						roll(mSplit[1], mSplit[2] in directions ? mSplit[2] : null);
+					break;
+				case "keepdown":
+					if (keys.includes(mSplit[1])) robot.keyToggle(mSplit[1], "down");
 					break;
 			}
 		}
