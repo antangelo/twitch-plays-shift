@@ -19,9 +19,17 @@ permissionsJson.blocked = permissionsJson.blocked.map((x) => {
 });
 
 function removeExpiredBlocks() {
+	var oldBlocked = JSON.stringify(permissionsJson.blocked);
 	permissionsJson.blocked = permissionsJson.blocked.filter((x) => {
-		Date.now() < x.expires || x.expires == -1;
+		return (Date.now() < x.expires || x.expires == -1);
 	});
+	if(JSON.stringify(permissionsJson.blocked) != oldBlocked){
+		await promises.writeFile(
+			"./permissions.json",
+			JSON.stringify(permissionsJson, null, 4),
+			"UTF-8"
+		);
+	}
 }
 
 setInterval(removeExpiredBlocks, 1000);
