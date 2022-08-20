@@ -13,7 +13,7 @@ var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 // If you're still using the old block list, migrate to new one.
 // You can remove this after the first time you run the code if you want.
 permissionsJson.blocked.map((x) => {
-	if (typeof(x) != "object") {
+	if (typeof x != "object") {
 		return { user: x, expires: -1 }; // By default, perma block oldies. -1 is NEVER expires.
 	}
 	return x;
@@ -194,7 +194,7 @@ chatClient.onRegister(() => {
 // I think 400 is the character limit?
 function whisperFull(user, msg) {
 	while (msg.length > 0) {
-		chatClient.whisper(user, msg.slice(400));
+		chatClient.say(channelName, msg.slice(0, 400));
 		msg = msg.slice(400);
 	}
 }
@@ -373,7 +373,6 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 					user,
 					`Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
 				);
-				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearloaders":
 				permissionsJson.loaders = [];
@@ -384,7 +383,6 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 					user,
 					`Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
 				);
-				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearsavers":
 				permissionsJson.savers = [];
@@ -407,7 +405,6 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 							.join(", ") || "(None)"
 					}`
 				);
-				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearblocked":
 				permissionsJson.blocked = [];
