@@ -11,8 +11,7 @@ const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
 var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 
 // If you're still using the old block list, migrate to new one.
-// You can remove this after the first time you run the code if you want.
-permissionsJson.blocked.map((x) => {
+permissionsJson.blocked = permissionsJson.blocked.map((x) => {
 	if (typeof x != "object") {
 		return { user: x, expires: -1 }; // By default, perma block oldies. -1 is NEVER expires.
 	}
@@ -25,7 +24,7 @@ function removeExpiredBlocks() {
 	});
 }
 
-setTimeout(removeExpiredBlocks, 1000);
+setInterval(removeExpiredBlocks, 1000);
 
 // https://discuss.dev.twitch.tv/t/twitch-channel-name-regex/3855/4
 const usernameRegex = RegExp("^(#)?[a-zA-Z0-9][\\w]{2,24}$");
@@ -72,6 +71,7 @@ const simpleActions = [
 ];
 
 const actionsModifiers = {
+	micro: 100,
 	light: 300,
 	long: 1500,
 	giga: 3000,
@@ -187,12 +187,8 @@ chatClient.onRegister(() => {
 	});
 });
 
-// Maybe there should be delay between the whispers? Eh... I think it will be fine.
-// This function is to ensure absolutely everything is sent to the end user.
-// If you replace chatClient.say calls, change channelName to user!!
-// You don't want to DM the streamer.
-// I think 400 is the character limit?
-function whisperFull(user, msg) {
+// This function is to ensure absolutely everything is sent.
+function sayFull(msg) {
 	while (msg.length > 0) {
 		chatClient.say(channelName, msg.slice(0, 400));
 		msg = msg.slice(400);
@@ -369,8 +365,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				robot.keyTap("f2");
 				return 0;
 			case "listloaders":
-				whisperFull(
-					user,
+				sayFull(
 					`Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
 				);
 				return 0;
@@ -379,8 +374,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				chatClient.say(channelName, `Cleared the loaders list!`);
 				return 0;
 			case "listsavers":
-				whisperFull(
-					user,
+				sayFull(
 					`Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
 				);
 				return 0;
@@ -389,8 +383,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				chatClient.say(channelName, `Cleared the savers list!`);
 				return 0;
 			case "listblocked":
-				whisperFull(
-					user,
+				sayFull(
 					`Blocked: ${
 						permissionsJson.blocked
 							.map((x) => {
@@ -508,6 +501,8 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				case "look":
 					if (mSplit[0] == "light" && mSplit[2] in directions)
 						look(mSplit[2], 200); // hard coded cause why not
+					if (mSplit[0] == "micro" && mSplit[2] in directions)
+						look(mSplit[2], 50);
 					break;
 				case "jump":
 					jump(dir1, dir2, true, time);
