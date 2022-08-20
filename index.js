@@ -10,6 +10,23 @@ var isActive = 1;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
 var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 
+// If you're still using the old block list, migrate to new one.
+// You can remove this after the first time you run the code if you want.
+permissionsJson.blocked.map((x) => {
+	if (typeof(x) != "object") {
+		return { user: x, expires: -1 }; // By default, perma block oldies. -1 is NEVER expires.
+	}
+	return x;
+});
+
+function removeExpiredBlocks() {
+	permissionsJson.blocked = permissionsJson.blocked.filter((x) => {
+		Date.now() < x.expires || x.expires == -1;
+	});
+}
+
+setTimeout(removeExpiredBlocks, 1000);
+
 // https://discuss.dev.twitch.tv/t/twitch-channel-name-regex/3855/4
 const usernameRegex = RegExp("^(#)?[a-zA-Z0-9][\\w]{2,24}$");
 
@@ -170,9 +187,21 @@ chatClient.onRegister(() => {
 	});
 });
 
+// Maybe there should be delay between the whispers? Eh... I think it will be fine.
+// This function is to ensure absolutely everything is sent to the end user.
+// If you replace chatClient.say calls, change channelName to user!!
+// You don't want to DM the streamer.
+// I think 400 is the character limit?
+function whisperFull(user, msg) {
+	while (msg.length > 0) {
+		chatClient.whisper(user, msg.slice(400));
+		msg = msg.slice(400);
+	}
+}
+
 setInterval(updateMods, 60 * 1000); // Every minute instead?
 
-chatClient.onMessage(async (channel, user, message, msg) => {
+chatClient.onMessage(async (channel, user, message, msgfull) => {
 	robot.mouseClick();
 	var mSplit = message.toLowerCase().split(" ");
 	if (modList.includes(user) || user == channelName) {
@@ -188,15 +217,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Added ${mSplit[1]} to loaders!`
-				);
+				chatClient.say(channelName, `Added ${mSplit[1]} to loaders!`);
 			} else {
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Unable to add ${mSplit[1]} to loaders!`
-				);
+				chatClient.say(channelName, `Unable to add ${mSplit[1]} to loaders!`);
 			}
 			return 0;
 		}
@@ -210,14 +233,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Removed ${mSplit[1]} from loaders!`
-				);
+				chatClient.say(channelName, `Removed ${mSplit[1]} from loaders!`);
 			} else {
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Unable to remove ${mSplit[1]} from loaders!`
+					`Unable to remove ${mSplit[1]} from loaders!`
 				);
 			}
 			return 0;
@@ -235,15 +255,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Added ${mSplit[1]} to savers!`
-				);
+				chatClient.say(channelName, `Added ${mSplit[1]} to savers!`);
 			} else {
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Unable to add ${mSplit[1]} to savers!`
-				);
+				chatClient.say(channelName, `Unable to add ${mSplit[1]} to savers!`);
 			}
 			return 0;
 		}
@@ -257,14 +271,11 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 					JSON.stringify(permissionsJson, null, 4),
 					"UTF-8"
 				);
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Removed ${mSplit[1]} from savers!`
-				);
+				chatClient.say(channelName, `Removed ${mSplit[1]} from savers!`);
 			} else {
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Unable to remove ${mSplit[1]} from savers!`
+					`Unable to remove ${mSplit[1]} from savers!`
 				);
 			}
 			return 0;
@@ -278,9 +289,14 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			if (
 				mSplit[1] != undefined &&
 				mSplit[1].match(usernameRegex) &&
-				!permissionsJson.blocked.includes(mSplit[1])
+				!permissionsJson.blocked.map((x) => x.user).includes(mSplit[1])
 			) {
-				permissionsJson.blocked.push(mSplit[1]);
+				var blockLength = parseInt(mSplit[2], 10);
+				blockLength = Number.isFinite(blockLength) ? blockLength : -1; // If no number or an invalid one is given, assume forever.
+				permissionsJson.blocked.push({
+					user: mSplit[1],
+					expires: blockLength != -1 ? Date.now() + blockLength * 1000 : -1,
+				});
 				await promises.writeFile(
 					"./permissions.json",
 					JSON.stringify(permissionsJson, null, 4),
@@ -288,13 +304,12 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				);
 				chatClient.say(
 					channelName,
-					`TwitchPlays - ${mSplit[1]} can no longer send inputs to the game!`
+					`${mSplit[1]} can no longer send inputs to the game for${
+						blockLength == -1 ? "ever" : " " + blockLength + " seconds"
+					}!`
 				);
 			} else {
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Unable to block ${mSplit[1]}'s input!`
-				);
+				chatClient.say(channelName, `Unable to block ${mSplit[1]}'s input!`);
 			}
 			return 0;
 		}
@@ -305,7 +320,9 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 			mSplit[0] == "removeblocked" ||
 			mSplit[0] == "delblocked"
 		) {
-			var remWhere = permissionsJson.blocked.indexOf(mSplit[1]);
+			var remWhere = permissionsJson.blocked
+				.map((x) => x.user)
+				.indexOf(mSplit[1]);
 			if (mSplit[1] != undefined && remWhere != -1) {
 				permissionsJson.blocked.splice(remWhere, 1);
 				await promises.writeFile(
@@ -315,16 +332,20 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				);
 				chatClient.say(
 					channelName,
-					`TwitchPlays - ${mSplit[1]} can send inputs to the game again!`
+					`${mSplit[1]} can send inputs to the game again!`
 				);
 			} else {
 				chatClient.say(
 					channelName,
-					`TwitchPlays - Unable to remove ${mSplit[1]} from block list!`
+					`Unable to remove ${mSplit[1]} from block list!`
 				);
 			}
 			return 0;
 		}
+
+		// It's probably okay to list information like "added saver" or "blocked person for 30 seconds"!
+		// but listing every loader, saver, and blocked person in the chat seems kinda overkill.
+		// So we'll whisper those.
 
 		switch (message.toLowerCase()) {
 			case "stopbob":
@@ -348,40 +369,49 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				robot.keyTap("f2");
 				return 0;
 			case "listloaders":
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Loaders: ${
-						permissionsJson.loaders.join(", ") || "(None)"
-					}`
+				whisperFull(
+					user,
+					`Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
 				);
+				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearloaders":
 				permissionsJson.loaders = [];
-				chatClient.say(channelName, `TwitchPlays - Cleared the loaders list!`);
+				chatClient.say(channelName, `Cleared the loaders list!`);
 				return 0;
 			case "listsavers":
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Savers: ${
-						permissionsJson.savers.join(", ") || "(None)"
-					}`
+				whisperFull(
+					user,
+					`Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
 				);
+				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearsavers":
 				permissionsJson.savers = [];
-				chatClient.say(channelName, `TwitchPlays - Cleared the savers list!`);
+				chatClient.say(channelName, `Cleared the savers list!`);
 				return 0;
 			case "listblocked":
-				chatClient.say(
-					channelName,
-					`TwitchPlays - Blocked: ${
-						permissionsJson.blocked.join(", ") || "(None)"
+				whisperFull(
+					user,
+					`Blocked: ${
+						permissionsJson.blocked
+							.map((x) => {
+								return `${x.user} is blocked for${
+									x.expires == -1
+										? "ever"
+										: " " +
+										  ((x.expires - Date.now()) / 1000).toFixed() +
+										  " seconds"
+								}`;
+							})
+							.join(", ") || "(None)"
 					}`
 				);
+				chatClient.say(channelName, `@${user} I sent a whisper to you!`);
 				return 0;
 			case "clearblocked":
 				permissionsJson.blocked = [];
-				chatClient.say(channelName, `TwitchPlays - Cleared the blocked list!`);
+				chatClient.say(channelName, `Cleared the blocked list!`);
 				return 0;
 			case "rebootbob":
 				exec("/home/user/archive/reboot.sh", (error, stdout, stderr) => {
@@ -394,7 +424,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 		}
 	}
 
-	if (permissionsJson.blocked.includes(user)) {
+	if (permissionsJson.blocked.map((x) => x.user).includes(user)) {
 		return 0; // You have no power here >:^)
 	}
 
