@@ -365,18 +365,14 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				robot.keyTap("f2");
 				return 0;
 			case "listloaders":
-				sayFull(
-					`Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`
-				);
+				sayFull(`Loaders: ${permissionsJson.loaders.join(", ") || "(None)"}`);
 				return 0;
 			case "clearloaders":
 				permissionsJson.loaders = [];
 				chatClient.say(channelName, `Cleared the loaders list!`);
 				return 0;
 			case "listsavers":
-				sayFull(
-					`Savers: ${permissionsJson.savers.join(", ") || "(None)"}`
-				);
+				sayFull(`Savers: ${permissionsJson.savers.join(", ") || "(None)"}`);
 				return 0;
 			case "clearsavers":
 				permissionsJson.savers = [];
@@ -499,10 +495,10 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 			switch (mSplit[1]) {
 				case "turn":
 				case "look":
-					if (mSplit[0] == "light" && mSplit[2] in directions)
-						look(mSplit[2], 200); // hard coded cause why not
-					if (mSplit[0] == "micro" && mSplit[2] in directions)
-						look(mSplit[2], 50);
+					if (mSplit[2] in directions) {
+						if (mSplit[0] == "light") look(mSplit[2], 200);
+						else if (mSplit[0] == "micro") look(mSplit[2], 50);
+					}
 					break;
 				case "jump":
 					jump(dir1, dir2, true, time);
