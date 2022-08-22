@@ -64,7 +64,7 @@ const directions = {
 	right: "6",
 };
 
-const keys = ["a", "b", "r", "y", "x", "l", "z", "start"];
+const keys = ["a", "b", "r", "y", "x", "l", "z"];
 
 const simpleActions = [
 	"move",
@@ -428,6 +428,12 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 
 	if (permissionsJson.savers.includes(user)) {
 		switch (message.toLowerCase()) {
+			case "start":
+				robot.keyTap("enter");
+				return 0;
+			case "press start":
+				robot.keyTap("enter");
+				return 0;
 			case "savebob":
 				robot.keyTap("f1", "shift");
 				return 0;
@@ -447,7 +453,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 
 		// press directly
 		if (keys.includes(mSplit[0])) {
-			mSplit[0] = "start" ? press("enter") : press(mSplit[0]);
+			press(mSplit[0]);
 		}
 
 		// execute simple action
@@ -462,8 +468,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 						sneak(mSplit[1], mSplit[2] in directions ? mSplit[2] : null);
 					break;
 				case "press":
-					if (keys.includes(mSplit[1]))
-						mSplit[0] = "start" ? press("enter") : press(mSplit[0]);
+					if (keys.includes(mSplit[1])) press(mSplit[0]);
 					break;
 				case "turn":
 				case "look":
