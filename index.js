@@ -70,14 +70,14 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 
 	if (modList.includes(user) || user == channelName) {
 		switch (mSplit[0]) {
-			case "startbob":
+			case "startbfbb":
 				exec(`aws ec2 start-instances --instance-ids ${instanceId}`, () => {
-					chatClient.say(channelName, "Starting TwitchPlays");
+					chatClient.say(channelName, "Starting TwitchPlays - bfbb");
 				});
 				break;
-			case "stopbob":
+			case "stopbfbb":
 				exec(`aws ec2 stop-instances --instance-ids${instanceId}`, () => {
-					chatClient.say(channelName, "Stopping TwitchPlays");
+					chatClient.say(channelName, "Stopping TwitchPlays - bfbb");
 				});
 				break;
 		}
