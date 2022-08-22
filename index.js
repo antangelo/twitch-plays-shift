@@ -356,6 +356,11 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				isActive = 0;
 				robot.keyTap("f10");
 				return 0;
+			case "killswitchdutchman":
+				exec("pkill rtsp", (error, stdout, stderr) => {
+					console.log(stdout);
+				});
+				break;
 			case "startbob":
 				isActive = 1;
 				robot.keyTap("f10");
