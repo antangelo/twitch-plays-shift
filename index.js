@@ -74,15 +74,17 @@ const simpleActions = [
 	"look",
 	"turn",
 	"jump",
-	"roll",
 	"keepdown",
+	"bash",
+	"bowl",
+	"attack",
 ];
 
 const actionsModifiers = {
 	micro: 100,
 	light: 300,
-	long: 1500,
-	giga: 3000,
+	double: 500,
+	giga: 1200,
 };
 
 function sleep(ms) {
@@ -103,17 +105,6 @@ async function move(dir1, dir2, time = 600) {
 	await sleep(time);
 	if (dir1) robot.keyToggle(directions[dir1], "up");
 	if (dir2) robot.keyToggle(directions[dir2], "up");
-	return 1;
-}
-
-async function roll(dir1, dir2, time = 2000) {
-	if (dir1) robot.keyToggle(directions[dir1], "down");
-	if (dir2) robot.keyToggle(directions[dir2], "down");
-	robot.keyToggle("r", "down");
-	await sleep(time);
-	if (dir1) robot.keyToggle(directions[dir1], "up");
-	if (dir2) robot.keyToggle(directions[dir2], "up");
-	robot.keyToggle("r", "up");
 	return 1;
 }
 
@@ -141,21 +132,27 @@ async function look(dir, time = 600) {
 	}
 }
 
-async function jump(dir1, dir2, long, time = 900) {
-	robot.keyTap("a");
+async function jump(dir1, dir2, double, time = 900) {
+	robot.keyToggle("a", "down");
 	if (dir1) robot.keyToggle(directions[dir1], "down");
 	if (dir2) robot.keyToggle(directions[dir2], "down");
-	if (long) robot.keyToggle("a", "down");
+	if (double) {
+		await sleep(200);
+		robot.keyToggle("a", "up");
+		await sleep(50);
+		robot.keyToggle("a", "down");
+		time > 1000 ? await sleep(500) : await sleep(100);
+		robot.keyTap("b");
+	}
+
 	await sleep(time);
-	if (long) robot.keyToggle("a", "up");
+	if (double) robot.keyToggle("a", "up");
 	if (dir1) robot.keyToggle(directions[dir1], "up");
 	if (dir2) robot.keyToggle(directions[dir2], "up");
 }
 
 async function press(key) {
-	if (key) {
-		robot.keyTap(key);
-	}
+	if (key) robot.keyTap(key);
 	return 1;
 }
 
@@ -347,19 +344,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 			return 0;
 		}
 
-		// It's probably okay to list information like "added saver" or "blocked person for 30 seconds"!
-		// but listing every loader, saver, and blocked person in the chat seems kinda overkill.
-		// So we'll whisper those.
-
 		switch (message.toLowerCase()) {
-			case "stopbob":
-				isActive = 0;
-				robot.keyTap("f10");
-				return 0;
-			case "startbob":
-				isActive = 1;
-				robot.keyTap("f10");
-				return 0;
 			case "savebob":
 				robot.keyTap("f1", "shift");
 				return 0;
@@ -456,6 +441,7 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 		if (keys.includes(mSplit[0])) {
 			press(mSplit[0]);
 		}
+
 		// execute simple action
 		if (simpleActions.includes(mSplit[0])) {
 			switch (mSplit[0]) {
@@ -491,10 +477,19 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 				case "keepdown":
 					if (keys.includes(mSplit[1])) robot.keyToggle(mSplit[1], "down");
 					break;
+				case "bash":
+					press("y");
+					break;
+				case "bowl":
+					press("x");
+					break;
+				case "attack":
+					press("b");
+					break;
 			}
 		}
 
-		// execute action with modifiers jump(dir1, dir2, long, time = 900)
+		// execute action with modifiers jump(dir1, dir2, double, time = 900)
 		if (mSplit[0] in actionsModifiers) {
 			var dir1, dir2;
 			time = actionsModifiers[mSplit[0]];
@@ -515,10 +510,8 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 					move(dir1, dir2, time);
 					break;
 				case "hold":
-					if (keys.includes(mSplit[2]) || mSplit[2] in directions) {
-						console.log("holding", mSplit[2], "for seconds ", time + 500);
+					if (keys.includes(mSplit[2]) || mSplit[2] in directions)
 						hold(mSplit[2], time + 500);
-					}
 					break;
 			}
 		}
