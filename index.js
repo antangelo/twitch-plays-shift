@@ -348,6 +348,14 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 			case "savebob":
 				robot.keyTap("f1", "shift");
 				return 0;
+			case "pausebfbb":
+				robot.keyTap("f10");
+				isActive = 0;
+				return 0;
+			case "resumebfbb":
+				robot.keyTap("f10");
+				isActive = 1;
+				return 0;
 			case "loadbob":
 				robot.keyTap("f1");
 				return 0;
