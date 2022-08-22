@@ -3,7 +3,7 @@ import { promises, readFileSync } from "fs";
 import { ChatClient } from "@twurple/chat";
 import { exec } from "child_process";
 
-var modList, clientId, clientSecret, channelName, time;
+var modList, clientId, clientSecret, channelName, instanceId;
 
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
 
