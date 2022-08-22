@@ -76,7 +76,7 @@ chatClient.onMessage(async (channel, user, message, msg) => {
 				});
 				break;
 			case "stopbfbb":
-				exec(`aws ec2 stop-instances --instance-ids${instanceId}`, () => {
+				exec(`aws ec2 stop-instances --instance-ids ${instanceId}`, () => {
 					chatClient.say(channelName, "Stopping TwitchPlays - bfbb");
 				});
 				break;
