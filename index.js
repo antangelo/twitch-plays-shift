@@ -6,7 +6,7 @@ import { exec } from "child_process";
 
 var modList, clientId, clientSecret, channelName, time;
 
-var isActive = 1;
+var isActive = 0;
 const tokenData = JSON.parse(await promises.readFile("./tokens.json", "UTF-8"));
 var permissionsJson = JSON.parse(readFileSync("./permissions.json").toString());
 
@@ -484,6 +484,9 @@ chatClient.onMessage(async (channel, user, message, msgfull) => {
 						roll(mSplit[1], mSplit[2] in directions ? mSplit[2] : null);
 					break;
 				case "keepdown":
+					if (mSplit[1] == "r" || mSplit[1] == "l") {
+						return 0;
+					}
 					if (keys.includes(mSplit[1])) robot.keyToggle(mSplit[1], "down");
 					break;
 				case "bash":
