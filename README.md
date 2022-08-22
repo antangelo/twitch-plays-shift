@@ -1,4 +1,4 @@
-# twitch-plays (Revenge of the Flying Dutchman)
+# twitch-plays (bfbb)
 Made for [shift](https://www.twitch.tv/shift)
 
 # Instructions:
