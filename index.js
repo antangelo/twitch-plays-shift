@@ -26,12 +26,6 @@ function readSettings() {
 	}
 }
 
-function updateMods() {
-	chatClient.getMods(channelName).then((response) => {
-		modList = response;
-	});
-}
-
 readSettings();
 
 const authProvider = new RefreshingAuthProvider(
@@ -57,18 +51,13 @@ chatClient.connect();
 
 chatClient.onRegister(() => {
 	console.log("Connected to Twitch!");
-	chatClient.getMods(channelName).then((response) => {
-		modList = response;
-		console.log(modList);
-	});
 });
 
-setInterval(updateMods, 60 * 1000); // Every minute instead?
 
 chatClient.onMessage(async (channel, user, message, msg) => {
 	var mSplit = message.toLowerCase().split(" ");
 
-	if (modList.includes(user) || user == channelName) {
+	if (user == "lobomfz" || user == channelName) {
 		switch (mSplit[0]) {
 			case "startbfbb":
 				exec(`aws ec2 start-instances --instance-ids ${instanceId}`, () => {
