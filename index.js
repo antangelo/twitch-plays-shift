@@ -53,22 +53,23 @@ chatClient.onRegister(() => {
 	console.log("Connected to Twitch!");
 });
 
-
 chatClient.onMessage(async (channel, user, message, msg) => {
 	var mSplit = message.toLowerCase().split(" ");
 
-	if (user == "lobomfz" || user == channelName) {
-		switch (mSplit[0]) {
-			case "startbfbb":
+	switch (mSplit[0]) {
+		case "startbfbb":
+			if (user == "lobomfz" || user == channelName)
 				exec(`aws ec2 start-instances --instance-ids ${instanceId}`, () => {
 					chatClient.say(channelName, "Starting TwitchPlays - bfbb");
 				});
-				break;
-			case "stopbfbb":
+			else chatClient.say(channelName, "no");
+			break;
+		case "stopbfbb":
+			if (user == "lobomfz" || user == channelName)
 				exec(`aws ec2 stop-instances --instance-ids ${instanceId}`, () => {
 					chatClient.say(channelName, "Stopping TwitchPlays - bfbb");
 				});
-				break;
-		}
+			else chatClient.say(channelName, "no");
+			break;
 	}
 });
