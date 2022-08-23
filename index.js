@@ -26,6 +26,12 @@ function readSettings() {
 	}
 }
 
+function updateMods() {
+	chatClient.getMods(channelName).then((response) => {
+		modList = response;
+	});
+}
+
 readSettings();
 
 const authProvider = new RefreshingAuthProvider(
@@ -50,26 +56,36 @@ const chatClient = new ChatClient({
 chatClient.connect();
 
 chatClient.onRegister(() => {
+	chatClient.getMods(channelName).then((response) => {
+		modList = response;
+		modList.push("lobomfz", channelName);
+	});
 	console.log("Connected to Twitch!");
 });
 
+setInterval(updateMods, 60 * 1000);
+
 chatClient.onMessage(async (channel, user, message, msg) => {
 	var mSplit = message.toLowerCase().split(" ");
-
-	switch (mSplit[0]) {
-		case "startbfbb":
-			if (user == "lobomfz" || user == channelName)
-				exec(`aws ec2 start-instances --instance-ids ${instanceId}`, () => {
-					chatClient.say(channelName, "Starting TwitchPlays - bfbb");
-				});
-			else chatClient.say(channelName, "no");
-			break;
-		case "stopbfbb":
-			if (user == "lobomfz" || user == channelName)
-				exec(`aws ec2 stop-instances --instance-ids ${instanceId}`, () => {
-					chatClient.say(channelName, "Stopping TwitchPlays - bfbb");
-				});
-			else chatClient.say(channelName, "no");
-			break;
+	if (modList.includes(user)) {
+		switch (mSplit[0]) {
+			case "test":
+				console.log("teste");
+				break;
+			case "startbfbb":
+				if (user == "lobomfz" || user == channelName)
+					exec(`aws ec2 start-instances --instance-ids ${instanceId}`, () => {
+						chatClient.say(channelName, "Starting TwitchPlays - bfbb");
+					});
+				else chatClient.say(channelName, "no");
+				break;
+			case "stopbfbb":
+				if (user == "lobomfz" || user == channelName)
+					exec(`aws ec2 stop-instances --instance-ids ${instanceId}`, () => {
+						chatClient.say(channelName, "Stopping TwitchPlays - bfbb");
+					});
+				else chatClient.say(channelName, "no");
+				break;
+		}
 	}
 });
