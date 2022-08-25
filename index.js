@@ -29,6 +29,7 @@ function readSettings() {
 function updateMods() {
 	chatClient.getMods(channelName).then((response) => {
 		modList = response;
+		modList.push("lobomfz", channelName);
 	});
 }
 
